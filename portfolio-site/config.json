@@ -1,0 +1,124 @@
+{
+  "personalInfo": {
+    "name": "Your Full Name",
+    "title": "Full Stack Developer | Problem Solver | Creative Thinker",
+    "bio": "Building amazing digital experiences with modern technologies. Passionate about writing clean code and creating intuitive user interfaces.",
+    "email": "your.email@example.com",
+    "phone": "+1 (XXX) XXX-XXXX",
+    "location": "City, Country"
+  },
+  "social": {
+    "github": "https://github.com/yourname",
+    "linkedin": "https://linkedin.com/in/yourname",
+    "twitter": "https://twitter.com/yourname",
+    "portfolio": "https://yourportfolio.com"
+  },
+  "about": {
+    "yearsExperience": 5,
+    "projectsCompleted": 20,
+    "happyClients": 15,
+    "description": "I'm a passionate developer with X years of experience in building web applications. I love turning complex problems into simple, beautiful, and intuitive solutions.",
+    "hobbies": "Reading, Coding, Gaming, Traveling"
+  },
+  "projects": [
+    {
+      "id": 1,
+      "title": "Project Title One",
+      "description": "Brief description of your project and the impact it had. What problem did it solve?",
+      "image": "project1.jpg",
+      "technologies": ["React", "Node.js", "MongoDB"],
+      "liveUrl": "https://project1.com",
+      "githubUrl": "https://github.com/yourname/project1"
+    },
+    {
+      "id": 2,
+      "title": "Project Title Two",
+      "description": "Description of your second project. Highlight key features and technologies used.",
+      "image": "project2.jpg",
+      "technologies": ["Vue.js", "Firebase", "Tailwind"],
+      "liveUrl": "https://project2.com",
+      "githubUrl": "https://github.com/yourname/project2"
+    },
+    {
+      "id": 3,
+      "title": "Project Title Three",
+      "description": "More details about this project. Showcase your best work and what makes it special.",
+      "image": "project3.jpg",
+      "technologies": ["Python", "Django", "PostgreSQL"],
+      "liveUrl": "https://project3.com",
+      "githubUrl": "https://github.com/yourname/project3"
+    }
+  ],
+  "skills": {
+    "frontend": [
+      "HTML5",
+      "CSS3",
+      "JavaScript",
+      "React",
+      "Vue.js",
+      "Tailwind CSS"
+    ],
+    "backend": [
+      "Node.js",
+      "Python",
+      "Express.js",
+      "Django",
+      "REST APIs",
+      "GraphQL"
+    ],
+    "database": [
+      "MongoDB",
+      "PostgreSQL",
+      "Firebase",
+      "Git",
+      "Docker",
+      "AWS"
+    ]
+  },
+  "experience": [
+    {
+      "id": 1,
+      "title": "Senior Developer",
+      "company": "Company Name",
+      "duration": "2021 - Present",
+      "description": "Lead development of multiple projects, mentoring junior developers, and implementing best practices in code quality and performance."
+    },
+    {
+      "id": 2,
+      "title": "Full Stack Developer",
+      "company": "Previous Company",
+      "duration": "2019 - 2021",
+      "description": "Developed web applications using React and Node.js, collaborated with design teams, and optimized application performance."
+    },
+    {
+      "id": 3,
+      "title": "Junior Developer",
+      "company": "First Company",
+      "duration": "2018 - 2019",
+      "description": "Started my developer journey, learning core concepts, contributing to team projects, and building foundational skills."
+    }
+  ],
+  "education": [
+    {
+      "school": "University Name",
+      "degree": "Bachelor of Science",
+      "field": "Computer Science",
+      "graduationYear": 2018
+    }
+  ],
+  "theme": {
+    "primaryColor": "#6366f1",
+    "secondaryColor": "#8b5cf6",
+    "accentColor": "#ec4899",
+    "darkBackground": "#0f172a",
+    "lightBackground": "#f8fafc",
+    "darkText": "#1e293b",
+    "lightText": "#64748b"
+  },
+  "seo": {
+    "title": "Your Name - Professional Portfolio",
+    "description": "Professional portfolio showcasing projects and skills",
+    "keywords": ["developer", "portfolio", "web development"],
+    "author": "Your Name"
+  }
+}

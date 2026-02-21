@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Darshak Chavda - Full Stack Developer & .NET Architecture Expert">
+    <title>Darshak Chavda — Full Stack Developer</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <!-- Styles (external) -->
+    <link rel="stylesheet" href="./assets/css/styles.css">
+
+    <!-- ═══ CRITICAL INLINE CSS — always applied, cache-proof ═══ -->
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html {
+            scroll-behavior: auto; /* we handle smooth scroll in JS */
+        }
+
+        body {
+            font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
+            background: #020408;
+            color: #e0e0e0;
+            overflow-x: hidden;
+            /* overflow-y: scroll is DEFAULT — native scrollbar drives position */
+        }
+
+        /* Spacer: invisible element that gives the page its real height
+           so the native scrollbar works correctly                         */
+        #page-spacer {
+            position: absolute;
+            top: 0; left: 0;
+            width: 1px;
+            pointer-events: none;
+            visibility: hidden;
+        }
+
+        /* ── Canvas: fixed 3D backdrop ── */
+        #canvas {
+            position: fixed !important;
+            top: 0 !important; left: 0 !important;
+            width: 100% !important; height: 100% !important;
+            z-index: 0 !important;
+            pointer-events: none !important;
+        }
+
+        /* ── Smooth-scroll wrapper: fixed, moved by JS transform ── */
+        .scroll-wrapper {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%;
+            will-change: transform;
+            z-index: 10;
+            /* overflow: visible so content below viewport isn't clipped */
+        }
+
+        /* ── Navbar ── */
+        .navbar {
+            position: fixed; top: 0; left: 0; right: 0;
+            z-index: 200;
+            padding: 1.4rem 2.5rem;
+            display: flex;
+            transition: background 0.4s, backdrop-filter 0.4s;
+        }
+        .navbar.scrolled {
+            background: rgba(2, 4, 8, 0.80);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .nav-content {
+            width: 100%; max-width: 1200px; margin: 0 auto;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .logo {
+            font-size: 1.1rem; font-weight: 700; color: rgba(255,255,255,0.85);
+            text-decoration: none; letter-spacing: 3px; text-transform: uppercase;
+        }
+        .nav-links { display: flex; gap: 2.5rem; }
+        .nav-links a {
+            color: rgba(255,255,255,0.45); text-decoration: none;
+            font-size: 0.78rem; letter-spacing: 2px; text-transform: uppercase;
+            font-weight: 500; transition: color 0.25s;
+        }
+        .nav-links a:hover, .nav-links a.active { color: #fff; }
+
+        /* ── Hero ── */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6rem 2rem 4rem;
+        }
+        .hero-content {
+            text-align: center;
+            max-width: 860px;
+            width: 100%;
+            animation: heroFadeUp 1.1s cubic-bezier(0.16,1,0.3,1) both;
+        }
+        .badge {
+            display: inline-block;
+            padding: 0.45rem 1.4rem;
+            border: 1px solid rgba(255,255,255,0.22);
+            border-radius: 50px;
+            font-size: 0.7rem; letter-spacing: 2.5px;
+            color: rgba(255,255,255,0.65);
+            background: rgba(255,255,255,0.06);
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+            animation: heroFadeUp 1.1s cubic-bezier(0.16,1,0.3,1) 0.1s both;
+        }
+        .title {
+            font-size: clamp(2.6rem, 8.5vw, 5.5rem);
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            line-height: 1.05;
+            color: #fff;
+            margin-bottom: 1rem;
+            animation: heroFadeUp 1.1s cubic-bezier(0.16,1,0.3,1) 0.2s both;
+        }
+        .subtitle {
+            font-size: clamp(0.8rem, 2vw, 1rem);
+            color: rgba(255,255,255,0.70);
+            letter-spacing: 3px; text-transform: uppercase; font-weight: 500;
+            margin-bottom: 1.5rem;
+            animation: heroFadeUp 1.1s cubic-bezier(0.16,1,0.3,1) 0.3s both;
+        }
+        .amp { color: rgba(200,200,200,0.40); margin: 0 0.5rem; }
+        .description {
+            font-size: 1rem;
+            color: rgba(255,255,255,0.58);
+            max-width: 620px; margin: 0 auto 2.2rem;
+            line-height: 1.85;
+            animation: heroFadeUp 1.1s cubic-bezier(0.16,1,0.3,1) 0.4s both;
+        }
+        .description strong { color: rgba(255,255,255,0.88); font-weight: 600; }
+        .cta-buttons {
+            display: flex; gap: 1.2rem; justify-content: center; flex-wrap: wrap;
+            margin-bottom: 2rem;
+            animation: heroFadeUp 1.1s cubic-bezier(0.16,1,0.3,1) 0.5s both;
+        }
+        .btn {
+            padding: 0.85rem 2.4rem; border-radius: 50px;
+            font-size: 0.82rem; font-weight: 700; letter-spacing: 1.5px;
+            text-transform: uppercase; cursor: pointer; border: 2px solid transparent;
+            font-family: inherit; transition: transform 0.25s, box-shadow 0.25s, background 0.25s, border-color 0.25s;
+        }
+        .btn-primary { background: #fff; color: #080a10; border-color: #fff; }
+        .btn-primary:hover { background: rgba(255,255,255,0.88); transform: translateY(-3px); box-shadow: 0 14px 36px rgba(255,255,255,0.18); }
+        .btn-secondary { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.82); border-color: rgba(255,255,255,0.26); }
+        .btn-secondary:hover { background: rgba(255,255,255,0.13); border-color: rgba(255,255,255,0.55); transform: translateY(-3px); }
+        .hero-links {
+            display: flex; justify-content: center; align-items: center; margin-bottom: 2.5rem;
+            animation: heroFadeUp 1.1s cubic-bezier(0.16,1,0.3,1) 0.6s both;
+        }
+        .hero-links a {
+            color: rgba(255,255,255,0.48); text-decoration: none;
+            font-size: 0.74rem; letter-spacing: 2px; text-transform: uppercase;
+            font-weight: 600; padding: 0 1.2rem; display: flex; align-items: center; gap: 0.4rem;
+            transition: color 0.2s;
+        }
+        .hero-links a:first-child { border-right: 1px solid rgba(255,255,255,0.15); }
+        .hero-links a:hover { color: rgba(255,255,255,0.90); }
+        .hero-meta {
+            display: flex; gap: 2rem; justify-content: center;
+            font-size: 0.7rem; color: rgba(255,255,255,0.28);
+            letter-spacing: 2px; text-transform: uppercase;
+            animation: heroFadeUp 1.1s cubic-bezier(0.16,1,0.3,1) 0.7s both;
+        }
+
+        /* Scroll line */
+        .scroll-indicator {
+            position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
+            width: 1px; height: 55px;
+            background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.32));
+            animation: scrollPulse 2.2s ease-in-out infinite;
+        }
+
+        /* ── Section backdrops ── */
+        #projects, #skills, #contact {
+            background: rgba(2,4,8,0.80);
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+        }
+
+        .projects-section, .skills-section, .contact-section {
+            padding: 7rem 2rem; max-width: 1200px; margin: 0 auto;
+        }
+        .projects-section h2, .skills-section h2, .contact-section h2 {
+            font-size: 2rem; text-align: center; letter-spacing: 0.12em;
+            text-transform: uppercase; color: #fff; margin-bottom: 3rem;
+        }
+
+        /* ── Reveal animation base ── */
+        .reveal {
+            opacity: 0;
+            transform: translateY(48px);
+            transition: opacity 0.75s cubic-bezier(0.16,1,0.3,1),
+                        transform 0.75s cubic-bezier(0.16,1,0.3,1);
+        }
+        .reveal.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Stagger delays for grid children */
+        .reveal[data-delay="1"] { transition-delay: 0.05s; }
+        .reveal[data-delay="2"] { transition-delay: 0.15s; }
+        .reveal[data-delay="3"] { transition-delay: 0.25s; }
+        .reveal[data-delay="4"] { transition-delay: 0.35s; }
+        .reveal[data-delay="5"] { transition-delay: 0.45s; }
+
+        /* Slide from left variant */
+        .reveal-left {
+            opacity: 0;
+            transform: translateX(-40px);
+            transition: opacity 0.75s cubic-bezier(0.16,1,0.3,1),
+                        transform 0.75s cubic-bezier(0.16,1,0.3,1);
+        }
+        .reveal-left.revealed {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* ── Projects ── */
+        .projects-list {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px,1fr)); gap: 1.6rem;
+        }
+        .project {
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.10);
+            padding: 1.8rem; border-radius: 14px; cursor: pointer;
+            transition: border-color 0.3s, transform 0.3s, background 0.3s;
+        }
+        .project:hover { border-color: rgba(0,200,255,0.40); transform: translateY(-5px); background: rgba(0,200,255,0.04); }
+        .project.featured { border-color: rgba(0,200,255,0.28); }
+        .project-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.8rem; }
+        .project h3 { font-size: 1.15rem; color: #fff; font-weight: 600; }
+        .featured-tag {
+            background: rgba(0,200,255,0.14); color: #00c8ff;
+            padding: 0.18rem 0.65rem; border-radius: 4px;
+            font-size: 0.65rem; font-weight: 700; letter-spacing: 1.5px;
+            border: 1px solid rgba(0,200,255,0.28); text-transform: uppercase;
+        }
+        .project p { color: rgba(255,255,255,0.46); margin-bottom: 1.2rem; line-height: 1.7; font-size: 0.9rem; }
+        .tech-stack { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+        .tech-stack span {
+            background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.52);
+            padding: 0.22rem 0.7rem; border-radius: 4px; font-size: 0.76rem;
+            border: 1px solid rgba(255,255,255,0.10);
+        }
+
+        /* ── Skills ── */
+        .skills-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px,1fr)); gap: 1.6rem; }
+        .skill-group {
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.10);
+            padding: 1.8rem; border-radius: 14px;
+            transition: border-color 0.3s, transform 0.3s;
+        }
+        .skill-group:hover { border-color: rgba(0,200,255,0.35); transform: translateY(-3px); }
+        .skill-group h4 {
+            color: rgba(0,200,255,0.88); margin-bottom: 0.85rem;
+            text-transform: uppercase; letter-spacing: 2px; font-size: 0.78rem;
+        }
+        .skill-group p { color: rgba(255,255,255,0.50); font-size: 0.9rem; line-height: 1.75; }
+
+        /* ── Contact ── */
+        .contact-intro { text-align: center; color: rgba(255,255,255,0.42); margin-bottom: 3rem; }
+        .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; margin-bottom: 3rem; }
+        .contact-info { display: flex; flex-direction: column; gap: 1.5rem; justify-content: center; }
+        .email-link, .phone-link { color: rgba(255,255,255,0.52); text-decoration: none; transition: color 0.2s; }
+        .email-link:hover, .phone-link:hover { color: rgba(0,200,255,0.90); }
+        .contact-form { display: flex; flex-direction: column; gap: 0.9rem; }
+        .contact-form input, .contact-form textarea {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
+            padding: 0.82rem 1.1rem; color: #e0e0e0; border-radius: 8px;
+            font-family: inherit; font-size: 0.9rem; transition: border-color 0.2s, background 0.2s;
+        }
+        .contact-form input::placeholder, .contact-form textarea::placeholder { color: rgba(255,255,255,0.22); }
+        .contact-form input:focus, .contact-form textarea:focus {
+            outline: none; border-color: rgba(0,200,255,0.45); background: rgba(0,200,255,0.04);
+        }
+        .social-links { display: flex; gap: 1rem; justify-content: center; margin-top: 2.5rem; }
+        .social-links a {
+            width: 44px; height: 44px; border: 1px solid rgba(255,255,255,0.13);
+            border-radius: 10px; display: flex; align-items: center; justify-content: center;
+            color: rgba(255,255,255,0.48); text-decoration: none;
+            transition: border-color 0.25s, color 0.25s, transform 0.25s; cursor: pointer;
+        }
+        .social-links a:hover { border-color: rgba(0,200,255,0.50); color: #00c8ff; transform: translateY(-3px); }
+
+        /* ── Footer ── */
+        footer {
+            text-align: center; padding: 2rem;
+            color: rgba(255,255,255,0.18); font-size: 0.8rem; letter-spacing: 1px;
+            border-top: 1px solid rgba(255,255,255,0.06); background: rgba(2,4,8,0.90);
+        }
+
+        /* ── Keyframes ── */
+        @keyframes heroFadeUp {
+            from { opacity: 0; transform: translateY(32px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes scrollPulse {
+            0%,100% { opacity: 0.35; transform: translateX(-50%) scaleY(1); }
+            50%      { opacity: 0.85; transform: translateX(-50%) scaleY(1.1); }
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            .nav-links { gap: 1.5rem; }
+            .title { letter-spacing: 0.06em; }
+            .cta-buttons { flex-direction: column; align-items: center; }
+            .btn { width: 100%; max-width: 260px; }
+            .contact-grid { grid-template-columns: 1fr; }
+            .hero-meta { flex-direction: column; gap: 0.5rem; align-items: center; }
+        }
+
+        /* ── Terminal Overlay ── */
+        .terminal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(2, 4, 8, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 500;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            opacity: 0;
+            transition: opacity 0.35s ease;
+        }
+        .terminal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+        .terminal-window {
+            width: 100%; max-width: 720px; max-height: 85vh;
+            background: #0a0c10;
+            border: 1px solid rgba(0, 200, 255, 0.25);
+            border-radius: 12px;
+            box-shadow:
+                0 0 60px rgba(0, 200, 255, 0.08),
+                0 25px 50px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.04);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transform: scale(0.96) translateY(12px);
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .terminal-overlay.active .terminal-window {
+            transform: scale(1) translateY(0);
+        }
+        .terminal-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0.9rem 1.2rem;
+            background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
+            border-bottom: 1px solid rgba(0, 200, 255, 0.12);
+        }
+        .terminal-title {
+            display: flex; align-items: center; gap: 0.7rem;
+            font-size: 0.72rem; letter-spacing: 1.5px;
+            text-transform: uppercase; color: rgba(255,255,255,0.55);
+        }
+        .terminal-title::before {
+            content: ''; width: 10px; height: 10px;
+            background: #00c8ff;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #00c8ff, 0 0 16px rgba(0, 200, 255, 0.4);
+            animation: terminalPulse 2s ease-in-out infinite;
+        }
+        @keyframes terminalPulse {
+            0%, 100% { opacity: 1; box-shadow: 0 0 8px #00c8ff, 0 0 16px rgba(0, 200, 255, 0.4); }
+            50% { opacity: 0.6; box-shadow: 0 0 4px #00c8ff, 0 0 8px rgba(0, 200, 255, 0.2); }
+        }
+        .terminal-controls { display: flex; gap: 0.6rem; }
+        .terminal-btn {
+            width: 12px; height: 12px; border-radius: 50%;
+            border: none; cursor: pointer; transition: transform 0.15s, opacity 0.15s;
+        }
+        .terminal-btn:hover { transform: scale(1.15); opacity: 0.85; }
+        .terminal-btn.close { background: #ff5f57; }
+        .terminal-btn.minimize { background: #febc2e; }
+        .terminal-btn.maximize { background: #28c840; }
+        .terminal-body {
+            flex: 1; overflow-y: auto;
+            padding: 1.2rem 1.4rem;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 0.85rem;
+            line-height: 1.7;
+            color: rgba(0, 200, 255, 0.88);
+        }
+        .terminal-body::-webkit-scrollbar { width: 6px; }
+        .terminal-body::-webkit-scrollbar-track { background: transparent; }
+        .terminal-body::-webkit-scrollbar-thumb {
+            background: rgba(0, 200, 255, 0.2);
+            border-radius: 3px;
+        }
+        .terminal-line { margin-bottom: 0.4rem; word-wrap: break-word; }
+        .terminal-line.command::before {
+            content: '$ '; color: #28c840;
+        }
+        .terminal-line.output { color: rgba(255,255,255,0.6); }
+        .terminal-line.system { color: rgba(0, 200, 255, 0.5); font-style: italic; }
+        .terminal-line.error { color: #ff5f57; }
+        .terminal-line.success { color: #28c840; }
+        .terminal-line .highlight { color: #fff; font-weight: 600; }
+        .terminal-line .accent { color: #febc2e; }
+        .terminal-input-line {
+            display: flex; align-items: center;
+            margin-top: 0.8rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid rgba(0, 200, 255, 0.1);
+        }
+        .terminal-input-line::before {
+            content: '$ '; color: #28c840; flex-shrink: 0;
+        }
+        .terminal-input {
+            flex: 1; background: transparent; border: none;
+            color: #fff; font-family: inherit; font-size: inherit;
+            outline: none; caret-color: #00c8ff;
+        }
+        .terminal-cursor {
+            display: inline-block; width: 8px; height: 1.1em;
+            background: #00c8ff;
+            animation: cursorBlink 1s step-end infinite;
+            vertical-align: text-bottom;
+            margin-left: 1px;
+        }
+        @keyframes cursorBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        .terminal-hint {
+            font-size: 0.68rem; color: rgba(255,255,255,0.25);
+            margin-top: 1.2rem; text-align: center;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 3D Background Canvas (fixed, behind everything) -->
+    <canvas id="canvas"></canvas>
+
+    <!-- Terminal Overlay -->
+    <div class="terminal-overlay" id="terminal">
+        <div class="terminal-window">
+            <div class="terminal-header">
+                <div class="terminal-title">terminal — darshak@portfolio</div>
+                <div class="terminal-controls">
+                    <button class="terminal-btn minimize"></button>
+                    <button class="terminal-btn maximize"></button>
+                    <button class="terminal-btn close" id="terminal-close"></button>
+                </div>
+            </div>
+            <div class="terminal-body" id="terminal-body">
+                <div class="terminal-line system">Initializing terminal session...</div>
+                <div class="terminal-line system">Loading profile data...</div>
+                <div class="terminal-line success">✓ System ready</div>
+                <div class="terminal-line">Welcome to <span class="highlight">Darshak Chavda</span>'s interactive terminal</div>
+                <div class="terminal-line">Type <span class="accent">help</span> to see available commands</div>
+                <div class="terminal-input-line">
+                    <input type="text" class="terminal-input" id="terminal-input" autocomplete="off" spellcheck="false" autofocus>
+                    <span class="terminal-cursor"></span>
+                </div>
+            </div>
+            <div class="terminal-hint">Press ESC or click outside to close</div>
+        </div>
+    </div>
+
+    <!-- Navigation (fixed, above scroll-wrapper) -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <a href="#" class="logo">darshak</a>
+            <div class="nav-links">
+                <a href="#projects">projects</a>
+                <a href="#skills">skills</a>
+                <a href="#contact">contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Spacer: sets native page height for scrollbar (height set by JS) -->
+    <div id="page-spacer"></div>
+
+    <!-- ═══ SCROLL WRAPPER: entire page moves inside this div ═══ -->
+    <div class="scroll-wrapper">
+
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-content">
+                <div class="badge">AVAILABLE FOR NEW PROJECTS</div>
+
+                <h1 class="title">DARSHAK&nbsp;&nbsp;CHAVDA</h1>
+
+                <p class="subtitle">
+                    Full-Stack Developer <span class="amp">&amp;</span> .NET Architecture Expert
+                </p>
+
+                <p class="description">
+                    Building <strong>scalable</strong> applications and <strong>intelligent</strong>
+                    systems for the next generation of <strong>digital</strong> experiences.
+                </p>
+
+                <div class="cta-buttons">
+                    <button class="btn btn-primary">VIEW WORK</button>
+                    <button class="btn btn-secondary">HIRE ME</button>
+                </div>
+
+                <div class="hero-links">
+                    <a href="#"><i class="fas fa-arrow-down" style="font-size:0.6rem"></i>&nbsp;RESUME</a>
+                    <a href="#" data-terminal-trigger><i class="fas fa-terminal" style="font-size:0.6rem"></i>&nbsp;TERMINAL</a>
+                </div>
+
+                <div class="hero-meta">
+                    <span>VADODARA, INDIA</span>
+                    <span>5+ TECH STACKS</span>
+                </div>
+            </div>
+            <div class="scroll-indicator"></div>
+        </section>
+
+        <!-- Projects Section -->
+        <section id="projects" class="projects-section">
+            <h2 class="reveal">PROJECTS</h2>
+            <div class="projects-list">
+
+                <div class="project featured reveal" data-delay="1">
+                    <div class="project-header">
+                        <h3>CryptoHub</h3>
+                        <span class="featured-tag">FEATURED</span>
+                    </div>
+                    <p>Cryptocurrency platform with real-time updates, charts, and NFT integration. Built with modern tech stack.</p>
+                    <div class="tech-stack">
+                        <span>React</span><span>GraphQL</span><span>MongoDB</span>
+                    </div>
+                </div>
+
+                <div class="project reveal" data-delay="2">
+                    <h3>Budget Tracker</h3>
+                    <p>Personal finance app with data visualization, categorization, and export capabilities.</p>
+                    <div class="tech-stack">
+                        <span>Python</span><span>Pandas</span><span>SQLite</span>
+                    </div>
+                </div>
+
+                <div class="project reveal" data-delay="3">
+                    <h3>Scribble Chat</h3>
+                    <p>Real-time multiplayer drawing game with event-driven architecture and WebSocket integration.</p>
+                    <div class="tech-stack">
+                        <span>Node.js</span><span>React</span><span>GraphQL</span>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Skills Section -->
+        <section id="skills" class="skills-section">
+            <h2 class="reveal">SKILLS</h2>
+            <div class="skills-grid">
+
+                <div class="skill-group reveal" data-delay="1">
+                    <h4>Frontend</h4>
+                    <p>React &bull; Vite &bull; JavaScript &bull; HTML5 &bull; CSS3 &bull; TailwindCSS &bull; Chakra-UI</p>
+                </div>
+                <div class="skill-group reveal" data-delay="2">
+                    <h4>Backend &amp; .NET</h4>
+                    <p>.NET &bull; C# &bull; Node.js &bull; Express &bull; Python &bull; GraphQL &bull; REST APIs</p>
+                </div>
+                <div class="skill-group reveal" data-delay="3">
+                    <h4>Database</h4>
+                    <p>MSSQL &bull; MongoDB &bull; PostgreSQL &bull; SQLite &bull; Firebase</p>
+                </div>
+                <div class="skill-group reveal" data-delay="4">
+                    <h4>Concepts</h4>
+                    <p>OOP &bull; Data Structures &bull; SaaS &bull; Event-Driven &bull; System Design</p>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="contact-section">
+            <h2 class="reveal">CONTACT</h2>
+            <p class="contact-intro reveal" data-delay="1">Let's build something amazing together</p>
+
+            <div class="contact-grid">
+                <div class="contact-info reveal" data-delay="2">
+                    <a href="mailto:darshak007chavda@gmail.com" class="email-link">darshak007chavda@gmail.com</a>
+                    <a href="tel:+917203075804" class="phone-link">+91 7203075804</a>
+                </div>
+                <form class="contact-form reveal" data-delay="3">
+                    <input type="text"   placeholder="Name"    required>
+                    <input type="email"  placeholder="Email"   required>
+                    <textarea            placeholder="Message" rows="4" required></textarea>
+                    <button type="submit" class="btn btn-primary">SEND</button>
+                </form>
+            </div>
+
+            <div class="social-links reveal" data-delay="4">
+                <a href="https://github.com/darshakchavda"      target="_blank" aria-label="GitHub">   <i class="fab fa-github"></i>  </a>
+                <a href="https://linkedin.com/in/darshak-chavda" target="_blank" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                <a href="https://twitter.com"                    target="_blank" aria-label="Twitter">  <i class="fab fa-twitter"></i> </a>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="reveal">
+            <p>&copy; 2025 Darshak Chavda. All rights reserved.</p>
+        </footer>
+
+    </div><!-- end .scroll-wrapper -->
+
+    <script src="./assets/js/background.js"></script>
+    <script src="./assets/js/script.js"></script>
+</body>
+</html>
